@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    {%if msg%}
+    <script>
+        window.alert('{{msg}}');
+    </script>
+    {% endif%}
+    <head>
+        <script src={% static "cities.js" %}></script>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>New Company Resgistration</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+       <h1>New Company Registration</h1>
+       
+    <form action="/postregisternewcompany/" method="post">
+    {% csrf_token %}
+      <label for="fname">Company id:</label><br>
+      <input type="text" id="compname" name="compname"><br>
+      <label for="lname">Company Name:</label><br>
+      <input type="text" id="compname" name="compname"><br>
+      <label for="lname">Email id:</label><br>
+      <input type="text" id="compmail" name="compmail"><br>
+      <label for="lname">Contact Number 1:</label><br>
+      <input type="phone" id="compcont1" name="compcont1"><br>
+      <label for="lname">Contact Number 2:</label><br>
+      <input type="phone" id="compcont2" name="compcont2"><br>
+      <label for="lname">Address:</label><br>
+      <input type="text" id="compadd" name="compadd"><br>
+      <select onchange="print_city('state', this.selectedIndex);" id="sts" name ="state" method="GET" class="form-control" required></select><br>
+        <select id ="state" name="city" class="form-control" method="GET" required></select>
+        <script language="javascript">print_state("sts");</script><br>
+      <label for="lname">Pincode:</label><br>
+      <input type="text" id="pincode" name="pincode"><br>
+      <input type="submit" value="Submit">
+
+   </form>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <script src="" async defer></script>
+    </body>
+</html>
