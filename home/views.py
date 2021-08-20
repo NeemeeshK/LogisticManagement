@@ -13,6 +13,8 @@ import pyrebase
 from pyrebase.pyrebase import Database
 import firebase_admin
 from firebase_admin import auth ,credentials, db
+from datetime import date
+from datetime import datetime 
 #This is Neemeesh
 #This is Omkar
 config = {    
@@ -338,24 +340,24 @@ def usertable (request) :
     misdata=list(firebase.get("/Data/Signup/MIS",None).values())
     #print(data[0]['address'])
     return render (request ,"usertable.html",{'admindata':admindata,'dispatchdata':dispatchdata,'bookingdata':bookingdata,'misdata':misdata,})
-
-
-def adminupdate(request)  :
-    return  render(request ,"adminupdate.html" )
-
-
-def postadminupdate (request) :
+def checkuserupdate(request)  :
+    return  render(request ,"checkuserupdate.html" )
+def postcheckuserupdate (request) :
     user_type = request.POST.get("usertype")
     old_email = request.POST.get("email")
-    old_user_name=request.POST.get("username")
-    
-
     db = database.child("Data").child("Signup").child(user_type).get()
-
+    for user in db.each() :
+        if user.val()['Email']==old_email and auth.get_user_by_email(old_email) : 
+            return render(request , "updateuser.html" ,{"old_email":old_email, "user_type": user_type})
+    return render(request , "checkuserupdate.html" , {"msg" : "User not Found!"})
+    
+def postuserupdate(request):
+    email = request.POST.get("old_email")
+    user_type = request.POST.get("usertype")
+    db = database.child("Data").child("Signup").child(user_type).get()
     new_address = request.POST.get("newaddress")
     new_city = request.POST.get("newcity")
-    new_country = request.POST.get("newcountry")
-    '''new_email = request.POST.get("newemail")'''
+    new_userid = request.POST.get("newuserid")
     new_name = request.POST.get("newname")
     new_phone= request.POST.get("newphone")
     new_pincode = request.POST.get("newpincode")
@@ -364,29 +366,20 @@ def postadminupdate (request) :
     session_id=user['idToken']
     request.session['uid']=str(session_id)'''
     for i in db.each() :
-        if i.val()['Email']==old_email : 
-            if i.val()['Name']==old_user_name :
                 database.child("Data").child("Signup").child(user_type).child(i.key()).update({
-                "address" : new_address ,
-                 "city"   : new_city ,
-                 "country": new_country ,
-                 '''"email"  : new_email ,'''
-                 "name"   : new_name ,
-                 "phone"  : new_phone ,
-                 "pincode": new_pincode ,
-                 "state"  :  new_state 
+                "Address" : new_address ,
+                 "City"   : new_city ,
+                 "User Id": new_userid ,
+                 "Name"   : new_name ,
+                 "Phone Number"  : new_phone ,
+                 "Pincode": new_pincode ,
+                 "State"  :  new_state ,
+                 "Email": email,
                 })
-                return render(request , "adminupdate.html" , {"msg1" : "The details of the required user have been updated !!"})
-            else :
-                msg1 = "This Name does not match with the give Email!"
-                return render(request , "adminupdate.html" , {"msg1" : msg1})
-        else :
-            msg1 = "This email is not Registered in our database!"
-            return render(request , "adminupdate.html" , {"msg1" : msg1})
-
+    return render(request , "adminupdate.html" , {"msg1" : "The details of the required user have been updated !!"})
+        
 def deleteuser(request)  :
     return render(request,"deleteuser.html")
-
 def postdeleteuser(request):
     user_type = request.POST.get("usertype")
     email = request.POST.get("email")
@@ -398,28 +391,64 @@ def postdeleteuser(request):
             auth.delete_user(user.uid)
             return render(request , "deleteuser.html" , {"msg" : "The User is deleted succesfully!"})
     return render(request , "deleteuser.html" , {"msg" : "User not Found!"})
-
 def productdetails(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
     compdetails=list(firebase.get("/Data/Product",None).values())
     return render (request ,"productdetails.html",{'compdetails':compdetails})
-
 def bookingorder(request):
-    return render(request, 'bookingorder.html')
-
+    firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
+    companies=list(firebase.get("/Data/Company",None).values())
+    compnames=[]
+    for compdetails in companies:
+        for eachcompkey,eachcompval in compdetails.items():
+            if eachcompkey=='Company Name':
+                compnames.append(eachcompval)
+    present_date = date.today().strftime("%d/%m/%Y")
+    
+    return render(request, 'bookingorder.html' , {"compnames" : compnames , "present_date": present_date})
 def postbookingorder(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
-    compname = request.POST.get("sender")
+    msg="Product is Registered Successfully!"
+    companies=list(firebase.get("/Data/Company",None).values())
+    compnames=[]
+    for compdetails in companies:
+        for eachcompkey,eachcompval in compdetails.items():
+            if eachcompkey=='Company Name':
+                compnames.append(eachcompval)
+    
+    compname = request.POST.get("compname")
+    print(compname)
+
+    db9 = database.child("Data").child("Product").get()
+
+    for i in db9.each() :
+        if i.val()["Company Name"] == compname : 
+             cost=300#database.child("Data").child("Product").child(i.key()).child("Cost").get().val()
+             
     receiver = request.POST.get("receiver")
     fromcity=request.POST.get("from")
     tocity=request.POST.get("to")
     invcno=request.POST.get("invcno")
     method=request.POST.get("methodofpacking")
     noofpckg=request.POST.get("noofpckg")
-    cost=request.POST.get("totalcost")
+    cost1=request.POST.get("totalcost")
     date=request.POST.get("date")
-    decription=request.POST.det("description")
-    
+    description=request.POST.get("description")
+
+    totalcost = cost*noofpckg
+    print(totalcost)
+    data = {
+        "receiver" : receiver ,
+        "fromcity" : fromcity ,
+        "tocity"   : tocity ,
+        "invcno"   : invcno , 
+        "method"   : method , 
+        "noofpckg" : noofpckg,
+        "cost1"    : cost1 , 
+        "date"     : date.today().strftime("%d/%m/%Y") , 
+        "description" : description
+    }
+    return render (request , "bookingorder.html" , {'cost':cost})
 def registernewproduct(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
     companies=list(firebase.get("/Data/Company",None).values())
