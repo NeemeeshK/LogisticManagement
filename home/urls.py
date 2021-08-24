@@ -48,5 +48,7 @@ urlpatterns = [
      path("productdetails/" , views.productdetails ,name='productdetails' ),
      path("bookingorder/" , views.bookingorder ,name='bookingorder' ),
      path("postbookingorder/" , views.postbookingorder ,name='postbookingorder' ),
-     #path("postconfirmbookingorder/" , views.postconfirmbookingorder ,name='postconfirmbookingorder' ),
+     path("postconfirmbookingorder/" , views.postconfirmbookingorder ,name='postconfirmbookingorder' ),
+     path("postmis/" , views.postmis ,name='postmis' ),
+     path("producttable/" , views.producttable ,name='producttable' )
 ]
