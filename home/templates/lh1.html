@@ -1,4 +1,8 @@
-
+{% if msg %}
+    <script>
+        window.alert('{{msg}}');
+    </script>
+{% endif %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">

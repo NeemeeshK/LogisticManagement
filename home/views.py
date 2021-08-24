@@ -15,6 +15,7 @@ import firebase_admin
 from firebase_admin import auth ,credentials, db
 from datetime import date
 from datetime import datetime 
+import uuid 
 #This is Neemeesh
 #This is Omkar
 config = {    
@@ -434,6 +435,7 @@ def postbookingorder(request):
 
     totalcost = int(cost)*int(noofpckg)
     print(totalcost)
+    bill_id = uuid.uuid4()
     data = {
         "fromstate" : fromstate ,
         "fromcity" : fromcity ,
@@ -445,12 +447,26 @@ def postbookingorder(request):
         "method"   : method , 
         "noofpckg" : noofpckg,
         "date"     : date , 
-        "description" : description
+        "description" : description,
+        "bill_id" : bill_id
     }
- 
-    database.child("Data").child("BookingOrder").child("Orders").push(data)
+    
+    return render (request , "confirmbookingorder.html" , {        "fromstate" : fromstate ,
+                                                                    "fromcity" : fromcity ,
+                                                                    "tostate" : tostate ,
+                                                                    "tocity"   : tocity ,
+                                                                    "compname" : compname ,
+                                                                    "receiver" : receiver ,
+                                                                    "invcno"   : invcno , 
+                                                                    "method"   : method , 
+                                                                    "noofpckg" : noofpckg,
+                                                                    "date"     : date , 
+                                                                    "description" : description ,
+                                                                    "totalcost" :  totalcost  ,
+                                                                     "bill_id" : bill_id                  })
+    #database.child("Data").child("BookingOrder").child("Orders").push(data)
 
-    companyname = database.child("Data").child("BookingOrder").child("Orders").get()
+'''    companyname = database.child("Data").child("BookingOrder").child("Orders").get()
     for i in companyname.each() :
         if i.val()["compname"] == compname :
             if i.val()["invcno"] == invcno :
@@ -464,20 +480,20 @@ def postbookingorder(request):
                 noofpckg1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("noofpckg").get().val()
                 tocity1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("tocity").get().val()
                 tostate1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("tostate").get().val()
-                receiver1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("receiver").get().val()
+                receiver1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("receiver").get().val()'''
 
 
-    mssg = "Your Order Data Received !! Calculating the Total Cost!"
-    return render (request , "confirmbookingorder.html" , {"totalcost" : totalcost , "mssg" : mssg , "cname" : cname , "datee" : datee , 
-                                                           "description1" : description1 ,
-                                                           "fromcity1" : fromcity1 , 
-                                                           "fromstate1" : fromstate1 , 
-                                                           "invcno1" : invcno1 , 
-                                                           "method1" : method1 , 
-                                                           "noofpckg1" : noofpckg1 ,
-                                                           "tocity1" : tocity1 ,
-                                                           "tostate1" : tostate1 ,
-                                                           "receiver1" : receiver1} )
+    # mssg = "Your Order Data Received !! Calculating the Total Cost!"
+   # return render (request , "confirmbookingorder.html" , {"totalcost" : totalcost , "mssg" : mssg , "cname" : cname , "datee" : datee , 
+                                                           #"description1" : description1 ,
+                                                           #"fromcity1" : fromcity1 , 
+                                                           #"fromstate1" : fromstate1 , 
+                                                           #"invcno1" : invcno1 , 
+                                                           #"method1" : method1 , 
+                                                          # "noofpckg1" : noofpckg1 ,
+                                                          # "tocity1" : tocity1 ,
+                                                          # "tostate1" : tostate1 ,
+                                                          # "receiver1" : receiver1 ,})
 
 
 
@@ -511,6 +527,50 @@ def postregisternewproduct(request):
 
 
 
+def postconfirmbookingorder (request) : 
+    bill_id = request.POST.get("bill_id")
+    fromstate = request.POST.get("fromstate ")
+    fromcity = request.POST.get("fromcity")
+    tostate= request.POST.get("tostate")
+    tocity= request.POST.get("tocity")
+    compname = request.POST.get("compname")
+    receiver= request.POST.get("receiver")
+    invcno = request.POST.get("invcno")
+    noofpckg= request.POST.get("noofpckg")
+    totalcost= request.POST.get("totalcost")
+    method = request.POST.get("method")
+    description = request.POST.get("description")
+    date = request.POST.get("date")
+    data = {
+        "fromstate" : fromstate ,
+        "fromcity" : fromcity ,
+        "tostate" : tostate ,
+        "tocity"   : tocity ,
+        "compname" : compname ,
+        "receiver" : receiver ,
+        "invcno"   : invcno , 
+        "method"   : method , 
+        "noofpckg" : noofpckg,
+        "date"     : date , 
+        "description" : description,
+        "bill_id" : bill_id ,
+        "totalcost" : totalcost 
+    }
 
+    database.child("Data").child("BookingOrder").child("Orders").push(data)
+    msg = "Your Order Has Been Placed Successfully !!"
+    return render (request , "lh1.html" , {"msg" : msg})
+
+def postmis (request) :
+    return render (request , "lh2.html")
+
+
+def producttable (request) :
+    firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
+    admindata=list(firebase.get("/Data/BookingOrder/Orders",None).values())
+    
+   
+    #print(data[0]['address'])
+    return render (request ,"producttable.html",{'admindata':admindata})
 
 
