@@ -390,7 +390,36 @@ def productdetails(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
     compdetails=list(firebase.get("/Data/Product",None).values())
     return render (request ,"productdetails.html",{'compdetails':compdetails})
-def bookingorder(request):
+
+
+def bookingorder1 (request) :
+    firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
+    companies=list(firebase.get("/Data/Company",None).values())
+    compnames=[]
+    for compdetails in companies:
+        for eachcompkey,eachcompval in compdetails.items():
+            if eachcompkey=='Company Name':
+                compnames.append(eachcompval)
+    present_date = date.today().strftime("%d/%m/%Y")
+    return render(request, 'bookingorder1.html' , {"compnames" : compnames , "present_date": present_date})
+
+def postbookingorder1 (request) :
+    firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
+    companies=list(firebase.get("/Data/Company",None).values())
+    compnames=[]
+    for compdetails in companies:
+        for eachcompkey,eachcompval in compdetails.items():
+            if eachcompkey=='Company Name':
+                compnames.append(eachcompval)
+    fromcity = request.POST.get("fromcity")
+    company_name = request.POST.get("compname1")
+    datee = request.POST.get("date")
+    docket_no = request.POST.get("docno")
+    return render(request , "bookingorder.html"  , {"fromcity":fromcity , "company_name" : company_name , "datee" : datee , "docket_no" : docket_no})
+
+
+
+'''def bookingorder(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
     companies=list(firebase.get("/Data/Company",None).values())
     compnames=[]
@@ -400,102 +429,55 @@ def bookingorder(request):
                 compnames.append(eachcompval)
     present_date = date.today().strftime("%d/%m/%Y")
     
-    return render(request, 'bookingorder.html' , {"compnames" : compnames , "present_date": present_date})
-def postbookingorder(request):
-    firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
-    msg="Product is Registered Successfully!"
-    companies=list(firebase.get("/Data/Company",None).values())
-    compnames=[]
-    for compdetails in companies:
-        for eachcompkey,eachcompval in compdetails.items():
-            if eachcompkey=='Company Name':
-                compnames.append(eachcompval)
-    
-    compname = request.POST.get("compname")
-    print(compname)
+    return render(request, 'bookingorder.html' , {"compnames" : compnames , "present_date": present_date})'''
 
+def postbookingorder(request):
+    # firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
+    # msg="Product is Registered Successfully!"
+    # companies=list(firebase.get("/Data/Company",None).values())
+    # compnames=[]
+    # for compdetails in companies:
+    #     for eachcompkey,eachcompval in compdetails.items():
+    #         if eachcompkey=='Company Name':
+    #             compnames.append(eachcompval)
+    
+    
+    # print(compname)
+    compname = request.POST.get("company_name")
     db9 = database.child("Data").child("Product").get()
 
     for i in db9.each() :
         if i.val()["Company Name"] == compname : 
              cost=database.child("Data").child("Product").child(i.key()).child("Cost").get().val()
              
-    fromstate = request.POST.get("state1")
-    fromcity=request.POST.get("city1")
-    tostate = request.POST.get("state2")
-    tocity=request.POST.get("city2")
-    compname = request.POST.get("compname")
-    receiver = request.POST.get("receiver")
-    invcno=request.POST.get("invcno")
-    method=request.POST.get("methodofpacking")
-    noofpckg=request.POST.get("noofpckg")
-    #cost1=request.POST.get("totalcost")
-    date=request.POST.get("date")
-    description=request.POST.get("description")
-
-    totalcost = int(cost)*int(noofpckg)
-    print(totalcost)
-    bill_id = uuid.uuid4()
-    data = {
-        "fromstate" : fromstate ,
-        "fromcity" : fromcity ,
-        "tostate" : tostate ,
-        "tocity"   : tocity ,
-        "compname" : compname ,
-        "receiver" : receiver ,
-        "invcno"   : invcno , 
-        "method"   : method , 
-        "noofpckg" : noofpckg,
-        "date"     : date , 
-        "description" : description,
-        "bill_id" : bill_id
-    }
     
-    return render (request , "confirmbookingorder.html" , {        "fromstate" : fromstate ,
+    fromcity=request.POST.get("fromcity")
+    company_name = request.POST.get("company_name")
+    datee = request.POST.get("datee")
+    docket_no = request.POST.get("docno")
+    destination = request.POST.get("destination")
+    partyname= request.POST.get("partyname")
+    invoice_no = request.POST.get("invcno")
+    noofpckg= request.POST.get("noofpckg")
+    description = request.POST.get("description")
+    totalcost = int(cost)*int(noofpckg)
+    # print(totalcost)
+    bill_id = uuid.uuid4()
+    return render (request , "confirmbookingorder.html" , {        
                                                                     "fromcity" : fromcity ,
-                                                                    "tostate" : tostate ,
-                                                                    "tocity"   : tocity ,
-                                                                    "compname" : compname ,
-                                                                    "receiver" : receiver ,
-                                                                    "invcno"   : invcno , 
-                                                                    "method"   : method , 
+                                                                    "company_name" : company_name,
+                                                                    "datee" : datee , 
+                                                                    "docket_no" : docket_no ,
+                                                                    "destination" : destination ,
+                                                                    "partyname" : partyname ,
+                                                                    "invoice_no" : invoice_no ,
+ 
                                                                     "noofpckg" : noofpckg,
-                                                                    "date"     : date , 
+                                                                     
                                                                     "description" : description ,
                                                                     "totalcost" :  totalcost  ,
-                                                                     "bill_id" : bill_id                  })
-    #database.child("Data").child("BookingOrder").child("Orders").push(data)
-
-'''    companyname = database.child("Data").child("BookingOrder").child("Orders").get()
-    for i in companyname.each() :
-        if i.val()["compname"] == compname :
-            if i.val()["invcno"] == invcno :
-                cname=database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("compname").get().val()
-                datee = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("date").get().val()
-                description1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("description").get().val()
-                fromcity1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("fromcity").get().val()
-                fromstate1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("fromstate").get().val()
-                invcno1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("invcno").get().val()
-                method1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("method").get().val()
-                noofpckg1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("noofpckg").get().val()
-                tocity1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("tocity").get().val()
-                tostate1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("tostate").get().val()
-                receiver1 = database.child("Data").child("BookingOrder").child("Orders").child(i.key()).child("receiver").get().val()'''
-
-
-    # mssg = "Your Order Data Received !! Calculating the Total Cost!"
-   # return render (request , "confirmbookingorder.html" , {"totalcost" : totalcost , "mssg" : mssg , "cname" : cname , "datee" : datee , 
-                                                           #"description1" : description1 ,
-                                                           #"fromcity1" : fromcity1 , 
-                                                           #"fromstate1" : fromstate1 , 
-                                                           #"invcno1" : invcno1 , 
-                                                           #"method1" : method1 , 
-                                                          # "noofpckg1" : noofpckg1 ,
-                                                          # "tocity1" : tocity1 ,
-                                                          # "tostate1" : tostate1 ,
-                                                          # "receiver1" : receiver1 ,})
-
-
+                                                                     "bill_id" : bill_id    })
+   
 
 def registernewproduct(request):
     firebase=FirebaseApplication("https://neemeesh-trial-default-rtdb.firebaseio.com/", None)
@@ -529,29 +511,27 @@ def postregisternewproduct(request):
 
 def postconfirmbookingorder (request) : 
     bill_id = request.POST.get("bill_id")
-    fromstate = request.POST.get("fromstate ")
-    fromcity = request.POST.get("fromcity")
-    tostate= request.POST.get("tostate")
-    tocity= request.POST.get("tocity")
-    compname = request.POST.get("compname")
-    receiver= request.POST.get("receiver")
-    invcno = request.POST.get("invcno")
-    noofpckg= request.POST.get("noofpckg")
     totalcost= request.POST.get("totalcost")
-    method = request.POST.get("method")
+    fromcity = request.POST.get("fromcity")
+    company_name = request.POST.get("company_name")
+    datee = request.POST.get("datee")
+    docket_no = request.POST.get("docket_no")
+    destination = request.POST.get("destination")
+    partyname = request.POST.get("partyname")
+    noofpckg= request.POST.get("noofpckg")
+    invcno = request.POST.get("invoice_no")    
     description = request.POST.get("description")
-    date = request.POST.get("date")
+    
     data = {
-        "fromstate" : fromstate ,
+        
         "fromcity" : fromcity ,
-        "tostate" : tostate ,
-        "tocity"   : tocity ,
-        "compname" : compname ,
-        "receiver" : receiver ,
+        "company_name" : company_name ,
+        "datee"     : datee , 
+        "docket_no" : docket_no ,
+        "destination" : destination ,
+        "partyname" : partyname ,
         "invcno"   : invcno , 
-        "method"   : method , 
         "noofpckg" : noofpckg,
-        "date"     : date , 
         "description" : description,
         "bill_id" : bill_id ,
         "totalcost" : totalcost 

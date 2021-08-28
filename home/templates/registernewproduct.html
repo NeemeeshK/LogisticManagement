@@ -324,7 +324,7 @@ a{
       <hr>
       <!-- <h1>New Product Registration</h1> -->
       
-      <form class="box" action="/postregisteradmin/" method="post">
+      <form class="box" action="/postregisternewproduct/" method="post">
         {% csrf_token %}
         <h1>REGISTER NEW PRODUCT</h1>
         <select name= "compname" method="GET" action="/">
@@ -340,7 +340,7 @@ a{
           <option  value="Kg" selected>Kg</option>
           <option value="Box" selected>Box</option>
       </select> 
-        <input type="number" name="add" placeholder="Cost in Rs.">
+        <input type="number" name="cost" placeholder="Cost in Rs.">
        
       
        
